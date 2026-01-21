@@ -12,6 +12,8 @@ module main.passwordmanager {
     requires com.almasb.fxgl.all;
     requires org.apache.commons.csv;
     requires com.fasterxml.jackson.databind;
+    requires java.sql;
+    requires org.postgresql.jdbc;
 
     opens main.passwordmanager to javafx.fxml;
     exports client;

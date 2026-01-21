@@ -2,18 +2,20 @@ package server.Requests;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import db.Engine;
 
 import java.io.IOException;
+import java.sql.Connection;
 
 
 public class RequestHandler {
-    //Connection newConnection;
-    //Engine myEngine;
+    Connection newConnection;
+    Engine myEngine;
     String response = "";
     public RequestHandler() {
-        //myEngine = new Engine();
-        //myEngine.start();
-        //newConnection = myEngine.returnConnection();
+        myEngine = new Engine();
+        myEngine.start();
+        newConnection = myEngine.returnConnection();
     }
     public String handle(String request) throws IOException {
         ObjectMapper objectMapper = new ObjectMapper();
