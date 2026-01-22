@@ -1,41 +1,38 @@
 package client.Users;
 
 import client.ClientHandler;
-import client.LabeledField;
+import client.Util.LabeledField;
 import client.StageHandler;
-import client.UiCreator;
+import client.Util.UiCreator;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;
 import javafx.scene.control.TextArea;
 import javafx.scene.layout.VBox;
 
-import java.util.ArrayList;
-
 public class NormalUser extends User {
     private final ClientHandler clientHandler;
     private final StageHandler stageHandler;
 
-    public NormalUser(int id, String name, String surname, ClientHandler clientHandler, StageHandler stageHandler) {
-        super(id, name, surname);
+    public NormalUser(String username, String password, String role, ClientHandler clientHandler, StageHandler stageHandler) {
+        super(username, password, role);
         this.clientHandler = clientHandler;
         this.stageHandler = stageHandler;
     }
 
     @Override
     public VBox generateLayout() {
-        // Tworzenie przycisków
         Button addBtn = UiCreator.createButton("Add password");
         Button checkBtn = UiCreator.createButton("Check password");
         Button deleteBtn = UiCreator.createButton("Delete password");
         Button logoutBtn = UiCreator.createButton("Log out");
 
-        // Obsługa kliknięć
         addBtn.setOnAction(e -> openAddPasswordView());
         checkBtn.setOnAction(e -> openCheckPasswordView());
         deleteBtn.setOnAction(e -> openDeletePasswordView());
         logoutBtn.setOnAction(e -> stageHandler.setDefaultView());
 
-        // Ustawienie layoutu
         VBox root = new VBox(15, addBtn, checkBtn, deleteBtn, logoutBtn);
         root.setPadding(new Insets(15));
 
@@ -51,7 +48,15 @@ public class NormalUser extends User {
         Button back = UiCreator.createButton("Back");
 
         back.setOnAction(e -> stageHandler.setScene(generateLayout(),"Password manager"));
-
+        save.setOnAction(e ->{
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+            jsonRequestNode.put("type", "addPassword");
+            jsonRequestNode.put("username", loginField.getValue());
+            jsonRequestNode.put("password", passField.getValue());
+            jsonRequestNode.put("domain", urlField.getValue());
+            clientHandler.sendMessage(jsonRequestNode.toString());
+        });
         VBox root = new VBox(
                 loginField.getRoot(),
                 passField.getRoot(),

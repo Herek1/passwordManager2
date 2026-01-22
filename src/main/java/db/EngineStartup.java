@@ -21,17 +21,16 @@ public class EngineStartup {
                     );
         """);
         tablesToCreate.put("passwords", """
-                CREATE TABLE passwords (
-                    id SERIAL PRIMARY KEY,
-                    user_id INT REFERENCES users(id) ON DELETE CASCADE,
-                    account VARCHAR(255) NOT NULL,
-                    password_encrypted TEXT NOT NULL,
-                    url VARCHAR(255),
-                    created_at TIMESTAMP DEFAULT NOW(),
-                    updated_at TIMESTAMP DEFAULT NOW()
-                );
-                """);
-
+            CREATE TABLE passwords (
+                id SERIAL PRIMARY KEY,
+                username VARCHAR(255) NOT NULL,
+                password_encrypted TEXT NOT NULL,
+                domain VARCHAR(255),
+                created_at TIMESTAMP DEFAULT NOW(),
+                updated_at TIMESTAMP DEFAULT NOW(),
+                CONSTRAINT unique_user_domain UNIQUE(username, domain)
+            );
+        """);
 
         for (Map.Entry<String, String> entry : tablesToCreate.entrySet()) {
             String tableName = entry.getKey();

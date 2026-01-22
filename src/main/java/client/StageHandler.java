@@ -1,7 +1,10 @@
 package client;
 
 import client.Users.User;
+import client.Util.Encryption;
 import client.Util.ShowAlert;
+import client.Util.UiCreator;
+import client.Util.UserSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Platform;
@@ -74,15 +77,28 @@ public class StageHandler {
         Button registerButton = new Button ("Register");
         loginButton.setOnAction(event -> {
             if (!loginField.getText().isEmpty() && !passwordField.getText().isEmpty()) {
-                sendLoginData("login",loginField, passwordField);
+                UserSession.setPendingPassword(passwordField.getText());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "login");
+                jsonRequestNode.put("username", loginField.getText());
+                jsonRequestNode.put("password", Encryption.hashPassword(passwordField.getText()));
+                clientHandler.sendMessage(jsonRequestNode.toString());
             } else {
                 ShowAlert.error("Please enter correct data");
             }
         });
 
         registerButton.setOnAction(event -> {
-            if (isNumeric(loginField.getText()) && !loginField.getText().isEmpty() && !passwordField.getText().isEmpty()) {
-                sendLoginData("register",loginField, passwordField);
+            if (!loginField.getText().isEmpty() && !passwordField.getText().isEmpty()) {
+                UserSession.setPendingPassword(passwordField.getText());
+                ObjectMapper objectMapper = new ObjectMapper();
+                ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+                jsonRequestNode.put("type", "createUser");
+                jsonRequestNode.put("username", loginField.getText());
+                jsonRequestNode.put("password", Encryption.hashPassword(passwordField.getText()));
+                jsonRequestNode.put("role", "user");
+                clientHandler.sendMessage(jsonRequestNode.toString());
             } else {
                 ShowAlert.error("Please enter correct data");
             }

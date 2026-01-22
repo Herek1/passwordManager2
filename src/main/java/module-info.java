@@ -18,4 +18,5 @@ module main.passwordmanager {
     opens main.passwordmanager to javafx.fxml;
     exports client;
     exports client.Users;
+    exports client.Util;
 }

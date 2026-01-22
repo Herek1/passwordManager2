@@ -25,7 +25,13 @@ public class RequestHandler {
         System.out.println("Request type: " + type);
         switch (type){
             case "login":
-                response = UserHandler.login(request);
+                response = UserHandler.login(request, newConnection);
+                break;
+            case "createUser":
+                response = UserHandler.createUser(request, newConnection);
+                break;
+            case "addPassword":
+                response = PasswordHandler.addPassword(request, newConnection);
                 break;
             default:
                 response = "Invalid request";

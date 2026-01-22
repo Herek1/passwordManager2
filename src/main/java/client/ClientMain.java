@@ -100,15 +100,13 @@ public class ClientMain extends Application {
                 return;
             }
 
-            String userType = userData.get("userType").asText();
-            String userName = userData.get("name").asText();
-            String userSurname = userData.get("surname").asText();
-            int login = Integer.valueOf(userData.get("login").asText());
+            String username = userData.get("username").asText();
+            String role = userData.get("role").asText();
 
             final User user;
-            switch (userType.toLowerCase()) {
+            switch (role.toLowerCase()) {
                 case "user":
-                    user = new NormalUser(login, userName, userSurname, stageHandler.getClientHandler(), stageHandler);
+                    user = new NormalUser(username, UserSession.clearPendingPassword(), role, stageHandler.getClientHandler(), stageHandler);
                     break;
                 default:
                     Platform.runLater(() -> stageHandler.displayMessage("Error: Unsupported role."));
