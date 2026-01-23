@@ -54,8 +54,6 @@ public class Encryption {
         cipher.init(Cipher.ENCRYPT_MODE, key, spec);
 
         byte[] ciphertext = cipher.doFinal(password.getBytes());
-
-        // Zwracamy IV + ciphertext w Base64
         byte[] combined = new byte[iv.length + ciphertext.length];
         System.arraycopy(iv, 0, combined, 0, iv.length);
         System.arraycopy(ciphertext, 0, combined, iv.length, ciphertext.length);

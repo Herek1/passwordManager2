@@ -14,4 +14,13 @@ public abstract class User {
     }
 
     public abstract VBox generateLayout();
+
+    public String getUsername() {
+        return username;
+    }
+    public String getMaster_password(){
+        return master_password;
+    }
+
+    public abstract void openCheckPasswordView();
 }

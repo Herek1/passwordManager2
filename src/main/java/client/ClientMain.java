@@ -2,12 +2,19 @@ package client;
 
 import client.Users.NormalUser;
 import client.Users.User;
+import client.Util.Encryption;
 import client.Util.ShowAlert;
 import client.Util.UserSession;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Insets;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -79,6 +86,12 @@ public class ClientMain extends Application {
                     case "login":
                         handleLoginSuccess(response);
                         break;
+                    case "getPasswords":
+                        handleGetPasswords(response);
+                        break;
+                    case "deletePassword":
+                        UserSession.getCurrentUser().openCheckPasswordView();
+                        break;
                     default:
                         ShowAlert.info("Action performed successfully.");
                         break;
@@ -120,6 +133,64 @@ public class ClientMain extends Application {
             ShowAlert.error("Error processing login response.");
             e.printStackTrace();
         }
+    }
+
+    private void handleGetPasswords(JsonNode response) throws Exception {
+        JsonNode data = response.get("data");
+
+        if (data == null || !data.isArray() || data.size() <= 1) {
+            stageHandler.displayMessage("No passwords found.");
+            return;
+        }
+
+        VBox passwordsLayout = new VBox(10);
+        passwordsLayout.setPadding(new Insets(15));
+
+        for (int i = 1; i < data.size(); i++) {
+            JsonNode entry = data.get(i);
+
+            String domain = entry.get("domain").asText();
+            String login  = entry.get("login").asText();
+            String encPwd = entry.get("password").asText();
+
+            String password = Encryption.decryptPassword(UserSession.getCurrentUser().getMaster_password(), encPwd);
+
+            Label info = new Label(
+                    "Domain: " + domain +
+                            "\nLogin: " + login +
+                            "\nPassword: " + password
+            );
+
+            Button deleteBtn = new Button("Delete");
+
+            deleteBtn.setOnAction(e -> {
+                ObjectMapper mapper = new ObjectMapper();
+                ObjectNode req = mapper.createObjectNode();
+                req.put("type", "deletePassword");
+                req.put("username", UserSession.getCurrentUser().getUsername());
+                req.put("domain", domain);
+                req.put("login", login);
+                stageHandler.getClientHandler().sendMessage(req.toString());
+
+            });
+
+            VBox entryBox = new VBox(5, info, deleteBtn);
+            entryBox.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+
+            passwordsLayout.getChildren().add(entryBox);
+        }
+
+        Button backBtn = new Button("Back");
+        backBtn.setOnAction(e ->
+                stageHandler.setScene(
+                        UserSession.getCurrentUser().generateLayout(),
+                        "Password manager"
+                )
+        );
+
+        passwordsLayout.getChildren().add(backBtn);
+
+        stageHandler.setScene(passwordsLayout, "Your passwords");
     }
 
 

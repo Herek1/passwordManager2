@@ -18,22 +18,80 @@ public class PasswordHandler {
             JsonNode root = mapper.readTree(request);
 
             String username = root.get("username").asText();
+            String login = root.get("login").asText();
             String password = root.get("password").asText();
             String domain = root.get("domain").asText();
 
             PasswordsDAO passwordsDAO = new PasswordsDAO(connection);
-            List<HashMap<String, String>> dbResponse = passwordsDAO.addPassword(username, password,domain);
+            List<HashMap<String, String>> dbResponse = passwordsDAO.addPassword(username,login, password,domain);
 
             ObjectMapper objectMapper = new ObjectMapper();
 
             ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-            jsonResponseNode.put("type", "login");
+            jsonResponseNode.put("type", "addPassword");
             jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
 
             return objectMapper.writeValueAsString(jsonResponseNode);
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred during login.");
+        }
+    }
+
+    public static String deletePassword(String request, Connection connection) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(request);
+
+            String username = root.get("username").asText();
+            String login = root.get("login").asText();
+            String domain = root.get("domain").asText();
+
+            PasswordsDAO passwordsDAO = new PasswordsDAO(connection);
+            List<HashMap<String, String>> dbResponse = passwordsDAO.deletePassword(username, login, domain);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+            jsonResponseNode.put("type", "deletePassword");
+            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
+
+            return objectMapper.writeValueAsString(jsonResponseNode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ErrorResponseUtil.createErrorResponse(
+                    "An unexpected error occurred while deleting password."
+            );
+        }
+    }
+
+
+    public static String getPassword(String request, Connection connection) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(request);
+
+            String username = root.get("username").asText();
+            String url = null;
+            if (root.has("url") && !root.get("url").isNull()) {
+                url = root.get("url").asText();
+            }
+
+            PasswordsDAO passwordsDAO = new PasswordsDAO(connection);
+            List<HashMap<String, String>> dbResponse = passwordsDAO.getPassword(username, url);
+
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
+            jsonResponseNode.put("type", "getPasswords");
+            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
+
+            return objectMapper.writeValueAsString(jsonResponseNode);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ErrorResponseUtil.createErrorResponse(
+                    "An unexpected error occurred while fetching passwords."
+            );
         }
     }
 }

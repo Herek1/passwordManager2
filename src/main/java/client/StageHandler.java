@@ -55,7 +55,13 @@ public class StageHandler {
         Platform.runLater(() -> {
             root.setPadding(UiCreator.ROOT_PADDING);
             root.setSpacing(UiCreator.VBOX_SPACING);
-            Scene scene = new Scene(root, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
+
+            ScrollPane scrollPane = new ScrollPane(root);
+            scrollPane.setFitToWidth(true);
+            scrollPane.setFitToHeight(true);
+            scrollPane.setPannable(true);
+
+            Scene scene = new Scene(scrollPane, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -112,35 +118,11 @@ public class StageHandler {
         return layout;
     }
 
-    private void sendLoginData(String action, TextField loginField, TextField passwordField) {
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-        jsonResponseNode.put("type", action);
-        jsonResponseNode.put("login", loginField.getText());
-        jsonResponseNode.put("password", passwordField.getText());
-
-        String loginData = jsonResponseNode.toString();
-        if (!loginData.isBlank()) {
-            clientHandler.sendMessage(loginData);
-        } else {
-            displayMessage("Please enter login credentials.");
-        }
-    }
-
     public void displayMessage(String message) {
         Platform.runLater(() -> {
             messagesArea.clear();
             messagesArea.appendText(message + "\n");
             messagesArea.setScrollTop(Double.MAX_VALUE);
         });
-    }
-
-    private boolean isNumeric(String str) {
-        try {
-            Double.parseDouble(str);
-            return true;
-        } catch (NumberFormatException e) {
-            return false;
-        }
     }
 }

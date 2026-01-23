@@ -33,6 +33,12 @@ public class RequestHandler {
             case "addPassword":
                 response = PasswordHandler.addPassword(request, newConnection);
                 break;
+            case "getPassword":
+                response = PasswordHandler.getPassword(request, newConnection);
+                break;
+            case "deletePassword":
+                response = PasswordHandler.deletePassword(request, newConnection);
+                break;
             default:
                 response = "Invalid request";
                 break;
