@@ -155,11 +155,9 @@ public class ClientMain extends Application {
 
             String password = Encryption.decryptPassword(UserSession.getCurrentUser().getMaster_password(), encPwd);
 
-            Label info = new Label(
-                    "Domain: " + domain +
-                            "\nLogin: " + login +
-                            "\nPassword: " + password
-            );
+            Label domainLable = new Label("Domain: " + domain);
+            Label loginLabel = new Label("Login: " + login );
+            Label passwordLabel = new Label("Password: " + password);
 
             Button deleteBtn = new Button("Delete");
 
@@ -174,7 +172,7 @@ public class ClientMain extends Application {
 
             });
 
-            VBox entryBox = new VBox(5, info, deleteBtn);
+            VBox entryBox = new VBox(5, domainLable, loginLabel, passwordLabel, deleteBtn);
             entryBox.setStyle("-fx-border-color: gray; -fx-padding: 8;");
 
             passwordsLayout.getChildren().add(entryBox);
