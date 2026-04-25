@@ -33,6 +33,20 @@ public class EngineStartup {
             );
         """);
 
+        tablesToCreate.put("audit_logs", """
+            CREATE TABLE audit_logs (
+                id SERIAL PRIMARY KEY,
+                timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+                user_id BIGINT NULL,
+                ip_address INET NULL,
+                action VARCHAR(50) NOT NULL,
+                success BOOLEAN NOT NULL DEFAULT TRUE,
+                request_data TEXT NULL,
+                response_data TEXT NULL,
+                details JSONB NULL
+        );
+        """);
+
         for (Map.Entry<String, String> entry : tablesToCreate.entrySet()) {
             String tableName = entry.getKey();
             String createQuery = entry.getValue();
