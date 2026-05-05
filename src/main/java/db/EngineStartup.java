@@ -42,8 +42,7 @@ public class EngineStartup {
                 action VARCHAR(50) NOT NULL,
                 success BOOLEAN NOT NULL DEFAULT TRUE,
                 request_data TEXT NULL,
-                response_data TEXT NULL,
-                details JSONB NULL
+                response_data TEXT NULL
         );
         """);
 

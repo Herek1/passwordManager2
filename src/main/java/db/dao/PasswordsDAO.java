@@ -103,7 +103,6 @@ public class PasswordsDAO {
                 } else {
                     stmt.setString(2, "%" + url + "%");
                 }
-                System.out.println("DB TEST" + url);
 
                 try (ResultSet rs = stmt.executeQuery()) {
                     while (rs.next()) {

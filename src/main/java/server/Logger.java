@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import db.dao.AuditLogDAO;
+import server.Util.JsonExtract;
 
 public class Logger {
 
@@ -14,67 +15,16 @@ public class Logger {
         this.auditLogDAO = auditLogDAO;
     }
 
-    public void saveLogs(
-            Integer userId,
-            String ip,
-            String request,
-            String response
-    ) {
+    public void saveLogs(Integer userId, String ip, String request, String response) {
         try {
-            JsonNode req = parse(request);
-            JsonNode res = parse(response);
-
-            String action = extract(req, "type", "UNKNOWN");
-
-            boolean success = extractSuccess(res);
-
-            String details = buildDetails(req, res);
-
-            auditLogDAO.addLog(
-                    action,
-                    userId,
-                    ip,
-                    success,
-                    request,
-                    response,
-                    details
-            );
-
-        } catch (Exception ignored) {
-            // logging must never break flow
-        }
-    }
-
-    private JsonNode parse(String json) {
-        try {
-            if (json == null || json.isBlank()) return null;
-            return objectMapper.readTree(json);
+            String action = JsonExtract.extract(request, "type");
+            String statusStr = JsonExtract.extract(response, "data", "0", "status");
+            boolean success = statusStr != null && statusStr.equalsIgnoreCase("success");
+            auditLogDAO.addLog(action, userId, ip, success, request, response);
+            //Tobefixed
         } catch (Exception e) {
-            return null;
-        }
-    }
-
-    private String extract(JsonNode node, String field, String fallback) {
-        if (node == null || !node.has(field)) return fallback;
-        return node.get(field).asText(fallback);
-    }
-
-    private boolean extractSuccess(JsonNode res) {
-        if (res == null) return false;
-        return res.has("success") && res.get("success").asBoolean(false);
-    }
-
-    private String buildDetails(JsonNode req, JsonNode res) {
-        try {
-            ObjectNode root = objectMapper.createObjectNode();
-
-            root.set("request", req != null ? req : objectMapper.createObjectNode());
-            root.set("response", res != null ? res : objectMapper.createObjectNode());
-
-            return objectMapper.writeValueAsString(root);
-
-        } catch (Exception e) {
-            return "{}";
+            System.err.println("Error saving logs: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 }

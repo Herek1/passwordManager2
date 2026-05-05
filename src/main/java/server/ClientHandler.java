@@ -38,14 +38,7 @@ public class ClientHandler implements Runnable {
             while ((inputLine = in.readLine()) != null) {
 
                 String response = requestHandler.handle(inputLine, this);
-
-                logger.saveLogs(
-                        this.userId,
-                        this.clientIp,
-                        inputLine,
-                        response
-                );
-
+                logger.saveLogs(this.userId, this.clientIp, inputLine, response);
                 out.println(response);
             }
 

@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import server.ClientHandler;
 import server.Logger;
 import server.Server;
+import server.Util.JsonExtract;
 
 import java.io.IOException;
 import java.sql.Connection;
@@ -32,10 +33,14 @@ public class RequestHandler {
             case "login":
                 response = UserHandler.login(request, connection);
 
-                Integer userId = extractUserId(response);
+                String idStr = JsonExtract.extract(response, "data", "1", "id");
+                Integer userId = idStr != null ? Integer.parseInt(idStr) : null;
+
                 if (userId != null) {
                     session.setUserId(userId);
                 }
+
+                System.out.println("User ID extracted: " + userId);
                 break;
 
             case "createUser":
@@ -57,23 +62,6 @@ public class RequestHandler {
             default:
                 response = "{\"success\":false,\"message\":\"Invalid request\"}";
         }
-
         return response;
-    }
-
-    private Integer extractUserId(String response) {
-        try {
-            JsonNode root = objectMapper.readTree(response);
-            JsonNode data = root.get("data");
-
-            if (data != null && data.isArray() && !data.isEmpty()) {
-                JsonNode user = data.get(0);
-                if (user.has("id")) {
-                    return user.get("id").asInt();
-                }
-            }
-        } catch (Exception ignored) {}
-
-        return null;
     }
 }

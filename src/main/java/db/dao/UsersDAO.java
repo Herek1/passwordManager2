@@ -124,7 +124,7 @@ public class UsersDAO {
 
         HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
         userList.add(staticInfo1);
-        String query = "SELECT username, role FROM users WHERE username = ? AND master_password = ?";
+        String query = "SELECT id,username, role FROM users WHERE username = ? AND master_password = ?";
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
             stmt.setString(2, password);
@@ -132,6 +132,7 @@ public class UsersDAO {
             try (ResultSet rs = stmt.executeQuery()) {
                 HashMap<String, String> user = new HashMap<>();
                 while (rs.next()) {
+                    user.put("id", rs.getString("id"));
                     user.put("username", rs.getString("username"));
                     user.put("role", rs.getString("role"));
                     userList.add(user);
@@ -146,7 +147,6 @@ public class UsersDAO {
             staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
             userList.set(0, staticInfo1);
         }
-        userList.add(staticInfo1);
         return userList;
     }
 //
