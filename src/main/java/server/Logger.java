@@ -9,10 +9,12 @@ import server.Util.JsonExtract;
 public class Logger {
 
     private final AuditLogDAO auditLogDAO;
+    private final ClientHandler session;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    public Logger(AuditLogDAO auditLogDAO) {
+    public Logger(AuditLogDAO auditLogDAO, ClientHandler session) {
         this.auditLogDAO = auditLogDAO;
+        this.session = session;
     }
 
     public void saveLogs(Integer userId, String ip, String request, String response) {
@@ -20,8 +22,13 @@ public class Logger {
             String action = JsonExtract.extract(request, "type");
             String statusStr = JsonExtract.extract(response, "data", "0", "status");
             boolean success = statusStr != null && statusStr.equalsIgnoreCase("success");
-            auditLogDAO.addLog(action, userId, ip, success, request, response);
-            //Tobefixed
+            System.out.println("result log audit: " + auditLogDAO.addLog(action, userId, ip, success, request, response));
+            session.setLastLogResult(success);
+            if(success){
+                session.setFailCounter(0);
+            }else{
+                session.setFailCounter(session.getFailCounter()+1);
+            }
         } catch (Exception e) {
             System.err.println("Error saving logs: " + e.getMessage());
             e.printStackTrace();

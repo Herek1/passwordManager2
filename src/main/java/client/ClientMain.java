@@ -3,6 +3,7 @@ package client;
 import client.Users.NormalUser;
 import client.Users.User;
 import client.Util.Encryption;
+import client.Util.JsonExtract;
 import client.Util.ShowAlert;
 import client.Util.UserSession;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,11 +24,9 @@ public class ClientMain extends Application {
     private static final int PORT = 12345;
     private StageHandler stageHandler;
     private PrintWriter out;
-    private ObjectMapper objectMapper; // JSON parser
 
     @Override
     public void start(Stage stage) {
-        objectMapper = new ObjectMapper(); // Initialize the ObjectMapper
         connectToServer(stage);
     }
 
@@ -59,45 +58,25 @@ public class ClientMain extends Application {
     private void handleServerResponse(String message) {
         System.out.println("Received: " + message);
         try {
-            JsonNode response = objectMapper.readTree(message);
-            JsonNode dataArray = response.get("data");
-            if (dataArray == null || !dataArray.isArray() || dataArray.isEmpty()) {
-                ShowAlert.error("Invalid server response: missing data array.");
-                return;
-            }
-
-            JsonNode statusNode = dataArray.get(0).get("status");
-            if (statusNode == null) {
-                ShowAlert.error("Invalid server response: missing status.");
-                return;
-            }
-
-            String status = statusNode.asText();
+            String status = JsonExtract.extract(message, "data", "0", "status");
             if ("Error".equalsIgnoreCase(status)) {
-                String userFriendlyError = dataArray.get(0).get("userFriendlyError").asText();
-                ShowAlert.error(userFriendlyError);
+                String err = JsonExtract.extract(message, "data", "0", "userFriendlyError");
+                ShowAlert.error(err);
                 return;
             }
-
-            if ("Success".equalsIgnoreCase(status)) {
-                String type = response.get("type").asText();
-                System.out.println("type: "+ type);
-                switch (type) {
-                    case "login":
-                        handleLoginSuccess(response);
-                        break;
-                    case "getPasswords":
-                        handleGetPasswords(response);
-                        break;
-                    case "deletePassword":
-                        UserSession.getCurrentUser().openCheckPasswordView();
-                        break;
-                    default:
-                        ShowAlert.info("Action performed successfully.");
-                        break;
-                }
-            } else {
-                ShowAlert.error("Unexpected status: " + status);
+            String type = JsonExtract.extract(message, "type");
+            switch (type) {
+                case "login":
+                    handleLoginSuccess(message);
+                    break;
+                case "getPasswords":
+                    handleGetPasswords(message);
+                    break;
+                case "deletePassword":
+                    UserSession.getCurrentUser().openCheckPasswordView();
+                    break;
+                default:
+                    ShowAlert.info("Success");
             }
         } catch (Exception e) {
             ShowAlert.error("Invalid server response: " + message);
@@ -105,16 +84,10 @@ public class ClientMain extends Application {
         }
     }
 
-    private void handleLoginSuccess(JsonNode response) {
+    private void handleLoginSuccess(String response) {
         try {
-            JsonNode userData = response.get("data").get(1);
-            if (userData == null) {
-                ShowAlert.error("Error: Missing user data in response.");
-                return;
-            }
-
-            String username = userData.get("username").asText();
-            String role = userData.get("role").asText();
+            String username = JsonExtract.extract(response, "data", "1", "username");
+            String role = JsonExtract.extract(response, "data", "1", "role");
 
             final User user;
             switch (role.toLowerCase()) {
@@ -135,47 +108,48 @@ public class ClientMain extends Application {
         }
     }
 
-    private void handleGetPasswords(JsonNode response) throws Exception {
-        JsonNode data = response.get("data");
+    private void handleGetPasswords(String response) throws Exception {
 
-        if (data == null || !data.isArray() || data.size() <= 1) {
+        int size = JsonExtract.getArraySize(response, "data");
+
+        if (size <= 1) {
             stageHandler.displayMessage("No passwords found.");
             return;
         }
 
-        VBox passwordsLayout = new VBox(10);
-        passwordsLayout.setPadding(new Insets(15));
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(15));
 
-        for (int i = 1; i < data.size(); i++) {
-            JsonNode entry = data.get(i);
+        for (int i = 1; i < size; i++) {
 
-            String domain = entry.get("domain").asText();
-            String login  = entry.get("login").asText();
-            String encPwd = entry.get("password").asText();
+            String domain = JsonExtract.extract(response, "data", String.valueOf(i), "domain");
+            String login  = JsonExtract.extract(response, "data", String.valueOf(i), "login");
+            String encPwd = JsonExtract.extract(response, "data", String.valueOf(i), "password");
 
-            String password = Encryption.decryptPassword(UserSession.getCurrentUser().getMaster_password(), encPwd);
+            String password = Encryption.decryptPassword(
+                    UserSession.getCurrentUser().getMaster_password(),
+                    encPwd
+            );
 
-            Label domainLable = new Label("Domain: " + domain);
-            Label loginLabel = new Label("Login: " + login );
-            Label passwordLabel = new Label("Password: " + password);
+            Label domainLabel = new Label("Domain: " + domain);
+            Label loginLabel  = new Label("Login: " + login);
+            Label passLabel   = new Label("Password: " + password);
 
             Button deleteBtn = new Button("Delete");
-
             deleteBtn.setOnAction(e -> {
-                ObjectMapper mapper = new ObjectMapper();
-                ObjectNode req = mapper.createObjectNode();
+                ObjectNode req = new ObjectMapper().createObjectNode();
                 req.put("type", "deletePassword");
                 req.put("username", UserSession.getCurrentUser().getUsername());
                 req.put("domain", domain);
                 req.put("login", login);
-                stageHandler.getClientHandler().sendMessage(req.toString());
 
+                stageHandler.getClientHandler().sendMessage(req.toString());
             });
 
-            VBox entryBox = new VBox(5, domainLable, loginLabel, passwordLabel, deleteBtn);
-            entryBox.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            VBox entry = new VBox(5, domainLabel, loginLabel, passLabel, deleteBtn);
+            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
 
-            passwordsLayout.getChildren().add(entryBox);
+            layout.getChildren().add(entry);
         }
 
         Button backBtn = new Button("Back");
@@ -186,12 +160,9 @@ public class ClientMain extends Application {
                 )
         );
 
-        passwordsLayout.getChildren().add(backBtn);
-
-        stageHandler.setScene(passwordsLayout, "Your passwords");
+        layout.getChildren().add(backBtn);
+        stageHandler.setScene(layout, "Your passwords");
     }
-
-
 
     public static void main(String[] args) {
         launch(args);

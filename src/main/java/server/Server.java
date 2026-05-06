@@ -15,16 +15,13 @@ public class Server {
         Engine engine = new Engine();
         engine.start();
 
-        AuditLogDAO auditLogDAO = new AuditLogDAO(engine.returnConnection());
-        Logger logger = new Logger(auditLogDAO);
-
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
 
             System.out.println("Server started on port " + PORT);
 
             while (true) {
                 Socket clientSocket = serverSocket.accept();
-                new Thread(new ClientHandler(clientSocket, engine, logger)).start();
+                new Thread(new ClientHandler(clientSocket, engine)).start();
             }
 
         } catch (Exception e) {

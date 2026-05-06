@@ -1,7 +1,9 @@
 package server;
 
 import db.Engine;
+import db.dao.AuditLogDAO;
 import server.Requests.RequestHandler;
+import server.Util.ErrorResponseUtil;
 
 import java.io.*;
 import java.net.Socket;
@@ -9,16 +11,17 @@ import java.net.Socket;
 public class ClientHandler implements Runnable {
 
     private final Socket clientSocket;
-    private final Logger logger;
     private final Engine engine;
 
     private Integer userId = null;
     private final String clientIp;
 
-    public ClientHandler(Socket socket, Engine engine, Logger logger) {
+    private boolean lastLogResult;
+    private int failCounter = 0;
+
+    public ClientHandler(Socket socket, Engine engine) {
         this.clientSocket = socket;
         this.engine = engine;
-        this.logger = logger;
         this.clientIp = socket.getInetAddress().getHostAddress();
     }
 
@@ -30,7 +33,8 @@ public class ClientHandler implements Runnable {
                 );
                 PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true)
         ) {
-
+            AuditLogDAO auditLogDAO = new AuditLogDAO(engine.returnConnection());
+            Logger logger = new Logger(auditLogDAO, this);
             RequestHandler requestHandler = new RequestHandler(engine.returnConnection(), logger);
 
             String inputLine;
@@ -39,6 +43,9 @@ public class ClientHandler implements Runnable {
 
                 String response = requestHandler.handle(inputLine, this);
                 logger.saveLogs(this.userId, this.clientIp, inputLine, response);
+                if(failCounter%5 == 0 && failCounter != 0){
+                    response = ErrorResponseUtil.createTimeOutResponse(this);
+                }
                 out.println(response);
             }
 
@@ -51,4 +58,10 @@ public class ClientHandler implements Runnable {
     public void setUserId(Integer userId) { this.userId = userId; }
 
     public String getClientIp() { return clientIp; }
+
+    public void setFailCounter(int value){this.failCounter = value;}
+    public int getFailCounter(){return failCounter;}
+
+    public void setLastLogResult(boolean value){this.lastLogResult = value;}
+    public boolean getLastLogResult(){return this.lastLogResult;}
 }
