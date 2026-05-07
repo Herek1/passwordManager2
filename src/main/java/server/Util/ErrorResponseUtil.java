@@ -20,28 +20,17 @@ public class ErrorResponseUtil {
     }
 
     public static String createTimeOutResponse(ClientHandler session){
-        String timeout = "0";
-        switch (session.getFailCounter()){
-            case 5:
-                timeout = "30";
-                break;
-            case 10:
-                timeout ="60";
-                break;
-            case 15:
-                timeout ="360";
-                break;
-            case 30:
-                timeout ="720";
-                break;
-            default:
-                timeout = "3600";
-                break;
-        }
+        String timeout = switch (session.getFailCounter()) {
+            case 5 -> "30";
+            case 10 -> "60";
+            case 15 -> "360";
+            case 30 -> "720";
+            default -> "3600";
+        };
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             ObjectNode errorResponse = objectMapper.createObjectNode();
-            errorResponse.put("status", "timeout");
+            errorResponse.put("type", "timeout");
             errorResponse.put("message", timeout);
             return objectMapper.writeValueAsString(errorResponse);
         } catch (Exception e) {

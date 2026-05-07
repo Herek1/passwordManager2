@@ -23,4 +23,5 @@ public abstract class User {
     }
 
     public abstract void openCheckPasswordView();
+    public abstract void handleGetPasswords(String response) throws Exception;
 }

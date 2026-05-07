@@ -1,4 +1,4 @@
-package client.Util;
+package client.Views;
 
 import javafx.application.Platform;
 import javafx.scene.control.Alert;

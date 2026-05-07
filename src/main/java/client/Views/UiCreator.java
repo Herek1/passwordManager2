@@ -1,4 +1,4 @@
-package client.Util;
+package client.Views;
 
 import javafx.geometry.Insets;
 import javafx.scene.control.Button;

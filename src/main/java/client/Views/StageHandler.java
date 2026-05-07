@@ -1,9 +1,8 @@
-package client;
+package client.Views;
 
+import client.ClientHandler;
 import client.Users.User;
 import client.Util.Encryption;
-import client.Util.ShowAlert;
-import client.Util.UiCreator;
 import client.Util.UserSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;

@@ -19,4 +19,5 @@ module main.passwordmanager {
     exports client;
     exports client.Users;
     exports client.Util;
+    exports client.Views;
 }
