@@ -16,7 +16,7 @@ public class EngineStartup {
             CREATE TABLE users (
                         id SERIAL PRIMARY KEY,
                         username VARCHAR(255) NOT NULL UNIQUE,
-                        master_password VARCHAR(255) NOT NULL,
+                        master_password VARCHAR(255),
                         role VARCHAR(50) NOT NULL
                     );
         """);

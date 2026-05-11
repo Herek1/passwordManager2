@@ -47,6 +47,10 @@ public class RequestHandler {
                 response = UserHandler.createUser(request, connection);
                 break;
 
+            case "registerUser":
+                response = UserHandler.setPassword(request, connection);
+                break;
+
             case "addPassword":
                 response = PasswordHandler.addPassword(request, connection);
                 break;

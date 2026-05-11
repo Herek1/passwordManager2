@@ -1,5 +1,6 @@
 package client;
 
+import client.Users.AdminUser;
 import client.Users.NormalUser;
 import client.Users.User;
 import client.Util.JsonExtract;
@@ -57,17 +58,22 @@ public class ClientMain extends Application {
             String status = JsonExtract.extract(message, "data", "0", "status");
             if ("Error".equalsIgnoreCase(status)) {
                 String err = JsonExtract.extract(message, "data", "0", "userFriendlyError");
-                stageHandler.displayMessage(err);
-                //ShowAlert.error(err);
+                //stageHandler.displayMessage(err);
+                ShowAlert.error(err);
                 return;
             }
             String type = JsonExtract.extract(message, "type");
             switch (type) {
                 case "login" -> handleLoginSuccess(message);
-                case "getPasswords" -> UserSession.getCurrentUser().handleGetPasswords(message);
-                case "deletePassword" -> UserSession.getCurrentUser().openCheckPasswordView();
                 case "timeout" -> timeOutHandler.handleTimeout(message);
-                default -> ShowAlert.info("Success");
+                default -> {
+                    User currentUser = UserSession.getCurrentUser();
+                    if (currentUser != null) {
+                        currentUser.handleMessage(message);
+                    } else {
+                        ShowAlert.info("Success");
+                    }
+                }
             }
         } catch (Exception e) {
             ShowAlert.error("Invalid server response: " + message);
@@ -84,6 +90,9 @@ public class ClientMain extends Application {
             switch (role.toLowerCase()) {
                 case "user":
                     user = new NormalUser(username, UserSession.clearPendingPassword(), role, stageHandler.getClientHandler(), stageHandler);
+                    break;
+                case "admin":
+                    user = new AdminUser(username, UserSession.clearPendingPassword(), role, stageHandler.getClientHandler(), stageHandler);
                     break;
                 default:
                     Platform.runLater(() -> stageHandler.displayMessage("Error: Unsupported role."));

@@ -32,4 +32,12 @@ public class UiCreator {
     public static LabeledField createPassword(String name) {
         return new LabeledField(name, new PasswordField());
     }
+
+    public static LabeledSelect createSelect(
+            String label,
+            String... options
+    ) {
+        return new LabeledSelect(label, options);
+    }
+
 }

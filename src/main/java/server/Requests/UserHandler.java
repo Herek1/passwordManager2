@@ -41,11 +41,11 @@ public class UserHandler {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode root = objectMapper.readTree(request);
             String username = root.get("username").asText();
-            String password = root.get("password").asText();
+            //String password = root.get("password").asText();
             String role = root.get("role").asText();
 
 
-            List<HashMap<String, String>> dbResponse = usersDAO.createUser(username, password, role);
+            List<HashMap<String, String>> dbResponse = usersDAO.createUser(username, /*password,*/ role);
 
             ObjectNode jsonResponseNode = objectMapper.createObjectNode();
             jsonResponseNode.put("type", "createUser"); // Add request type
@@ -54,6 +54,50 @@ public class UserHandler {
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching prescriptions.");
+        }
+    }
+
+    public static String setPassword(
+            String request,
+            Connection connection
+    ) {
+
+        UsersDAO usersDAO = new UsersDAO(connection);
+
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+
+            JsonNode root = mapper.readTree(request);
+
+            String username =
+                    root.get("username").asText();
+
+            String password =
+                    root.get("password").asText();
+
+            List<HashMap<String, String>> dbResponse =
+                    usersDAO.updateUserPassword(username, password);
+
+            ObjectNode response =
+                    mapper.createObjectNode();
+
+            response.put("type", "setPassword");
+
+            response.set(
+                    "data",
+                    mapper.valueToTree(dbResponse)
+            );
+
+            return mapper.writeValueAsString(response);
+
+        } catch (Exception e) {
+
+            e.printStackTrace();
+
+            return ErrorResponseUtil.createErrorResponse(
+                    "Failed to set password."
+            );
         }
     }
 }

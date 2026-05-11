@@ -3,6 +3,7 @@ package client.Users;
 import client.ClientHandler;
 import client.Util.*;
 import client.Views.LabeledField;
+import client.Views.ShowAlert;
 import client.Views.StageHandler;
 import client.Views.UiCreator;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -39,6 +40,16 @@ public class NormalUser extends User {
         return root;
     }
 
+    @Override
+    public void handleMessage(String message) throws Exception {
+        String type = JsonExtract.extract(message, "type");
+        switch (type) {
+            case "getPasswords" -> handleGetPasswords(message);
+            case "deletePassword" -> openCheckPasswordView();
+            default -> ShowAlert.info("Success");
+        }
+    }
+
     private void openAddPasswordView() {
         LabeledField loginField = UiCreator.createText("Login");
         LabeledField passField = UiCreator.createPassword("Password");
@@ -72,8 +83,7 @@ public class NormalUser extends User {
         stageHandler.setScene(root, "Add password");
     }
 
-    @Override
-    public void openCheckPasswordView() {
+    private void openCheckPasswordView() {
         LabeledField urlField = UiCreator.createText("Domain URL");
         TextArea resultArea = stageHandler.getMessagesArea();
         stageHandler.displayMessage("");
@@ -113,8 +123,7 @@ public class NormalUser extends User {
         stageHandler.setScene(root, "Check Password");
     }
 
-    @Override
-    public void handleGetPasswords(String response) throws Exception {
+    private void handleGetPasswords(String response) throws Exception {
 
         int size = JsonExtract.getArraySize(response, "data");
 

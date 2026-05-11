@@ -21,7 +21,7 @@ public abstract class User {
     public String getMaster_password(){
         return master_password;
     }
-
-    public abstract void openCheckPasswordView();
-    public abstract void handleGetPasswords(String response) throws Exception;
+    public abstract void handleMessage(String message) throws Exception;
+//    public abstract void openCheckPasswordView();
+//    public abstract void handleGetPasswords(String response) throws Exception;
 }

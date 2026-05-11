@@ -60,6 +60,7 @@ public class StageHandler {
             scrollPane.setFitToHeight(true);
             scrollPane.setPannable(true);
 
+
             Scene scene = new Scene(scrollPane, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
             stage.setScene(scene);
             stage.setTitle(title);
@@ -99,10 +100,10 @@ public class StageHandler {
                 UserSession.setPendingPassword(passwordField.getText());
                 ObjectMapper objectMapper = new ObjectMapper();
                 ObjectNode jsonRequestNode = objectMapper.createObjectNode();
-                jsonRequestNode.put("type", "createUser");
+                jsonRequestNode.put("type", "registerUser");
                 jsonRequestNode.put("username", loginField.getText());
                 jsonRequestNode.put("password", Encryption.hashPassword(passwordField.getText()));
-                jsonRequestNode.put("role", "user");
+                //jsonRequestNode.put("role", "user");
                 clientHandler.sendMessage(jsonRequestNode.toString());
             } else {
                 ShowAlert.error("Please enter correct data");

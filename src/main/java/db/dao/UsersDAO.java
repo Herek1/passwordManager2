@@ -20,10 +20,14 @@ public class UsersDAO {
         this.conn = conn;
     }
 
-    public List<HashMap<String, String>> createUser(String username, String master_password, String role) {
+    public List<HashMap<String, String>> createUser(String username, /*String master_password,*/ String role) {
+//        String query = """
+//        INSERT INTO users (username, master_password, role)
+//        VALUES (?, ?, ?)
+//        """;
         String query = """
-        INSERT INTO users (username, master_password, role)
-        VALUES (?, ?, ?)
+        INSERT INTO users (username, role)
+        VALUES (?, ?)
         """;
         List<HashMap<String, String>> result = new ArrayList<>();
 
@@ -31,8 +35,9 @@ public class UsersDAO {
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
-            stmt.setString(2, master_password);
-            stmt.setString(3, role);
+            //stmt.setString(2, master_password);
+            //stmt.setString(3, role);
+            stmt.setString(2, role);
             stmt.executeUpdate();
         } catch (SQLException e) {
             staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
@@ -41,30 +46,30 @@ public class UsersDAO {
         return result;
     }
 
-//    public List<HashMap<String, String>> updateUserPassword(String login, String newPassword) {
-//        List<HashMap<String, String>> infoList = new ArrayList<>();
-//
-//        HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
-//        infoList.add(staticInfo1);
-//        String query = "UPDATE users SET password = ? WHERE login = ?";
-//        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-//            stmt.setString(1, newPassword);
-//            stmt.setString(2, login);
-//
-//            HashMap<String, String> staticInfo2 = new HashMap<>();
-//            if (stmt.executeUpdate() > 0) {
-//                staticInfo2.put("success", "true");
-//            } else {
-//                staticInfo1.replace(message.getHashIdStatus(), "error");
-//                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User password was not updated");
-//            }
-//            infoList.add(staticInfo2);
-//        } catch (SQLException e) {
-//            staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
-//        }
-//        infoList.set(0, staticInfo1);
-//        return infoList;
-//    }
+    public List<HashMap<String, String>> updateUserPassword(String login, String newPassword) {
+        List<HashMap<String, String>> infoList = new ArrayList<>();
+
+        HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+        infoList.add(staticInfo1);
+        String query = "UPDATE users SET master_password = ? WHERE username = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, newPassword);
+            stmt.setString(2, login);
+
+            HashMap<String, String> staticInfo2 = new HashMap<>();
+            if (stmt.executeUpdate() > 0) {
+                staticInfo2.put("success", "true");
+            } else {
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User password could not be set");
+            }
+            infoList.add(staticInfo2);
+        } catch (SQLException e) {
+            staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
+        }
+        infoList.set(0, staticInfo1);
+        return infoList;
+    }
 
 //    public List<HashMap<String, String>> deleteUser(String login) {
 //        List<HashMap<String, String>> infoList = new ArrayList<>();
