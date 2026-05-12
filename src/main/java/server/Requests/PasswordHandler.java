@@ -89,9 +89,7 @@ public class PasswordHandler {
 
         } catch (Exception e) {
             e.printStackTrace();
-            return ErrorResponseUtil.createErrorResponse(
-                    "An unexpected error occurred while fetching passwords."
-            );
+            return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching passwords.");
         }
     }
 }

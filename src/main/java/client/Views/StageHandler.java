@@ -103,7 +103,6 @@ public class StageHandler {
                 jsonRequestNode.put("type", "registerUser");
                 jsonRequestNode.put("username", loginField.getText());
                 jsonRequestNode.put("password", Encryption.hashPassword(passwordField.getText()));
-                //jsonRequestNode.put("role", "user");
                 clientHandler.sendMessage(jsonRequestNode.toString());
             } else {
                 ShowAlert.error("Please enter correct data");

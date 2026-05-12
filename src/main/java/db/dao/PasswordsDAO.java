@@ -82,8 +82,7 @@ public class PasswordsDAO {
 
     public List<HashMap<String, String>> getPassword(String username, String url){
         List<HashMap<String, String>> result = new ArrayList<>();
-        HashMap<String, String> staticInfo =
-                new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+        HashMap<String, String> staticInfo = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
         result.add(staticInfo);
 
         try {
@@ -91,7 +90,7 @@ public class PasswordsDAO {
             SELECT login, domain, password_encrypted
             FROM passwords
             WHERE username = ?
-              AND domain ILIKE ?
+            AND domain ILIKE ?
             ORDER BY domain
         """;
 
@@ -116,10 +115,7 @@ public class PasswordsDAO {
 
                 if (result.size() == 1) {
                     staticInfo.replace(message.getHashIdStatus(), "error");
-                    staticInfo.replace(
-                            message.getHashIdUserFriendlyError(),
-                            "No passwords found"
-                    );
+                    staticInfo.replace(message.getHashIdUserFriendlyError(), "No passwords found");
                 } else {
                     staticInfo.replace(message.getHashIdStatus(), "success");
                 }

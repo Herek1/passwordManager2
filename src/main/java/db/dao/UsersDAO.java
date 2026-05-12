@@ -20,7 +20,7 @@ public class UsersDAO {
         this.conn = conn;
     }
 
-    public List<HashMap<String, String>> createUser(String username, /*String master_password,*/ String role) {
+    public List<HashMap<String, String>> createUser(String username, String role) {
 //        String query = """
 //        INSERT INTO users (username, master_password, role)
 //        VALUES (?, ?, ?)
@@ -154,39 +154,53 @@ public class UsersDAO {
         }
         return userList;
     }
-//
-//    public List<HashMap<String, String>> getUserByLogin(String login) {
-//        List<HashMap<String, String>> userList = new ArrayList<>();
-//
-//        HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
-//        userList.add(staticInfo1);
-//
-//        String query = "SELECT id, login, user_type, name, surname FROM users WHERE login = ?";
-//        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-//            stmt.setString(1, login);
-//
-//            try (ResultSet rs = stmt.executeQuery()) {
-//                HashMap<String, String> user = new HashMap<>();
-//                while (rs.next()) {
-//                    user.put("id", rs.getString("id"));
-//                    user.put("login", rs.getString("login"));
-//                    user.put("userType", rs.getString("user_type"));
-//                    user.put("name", rs.getString("name"));
-//                    user.put("surname", rs.getString("surname"));
-//                }
-//                if (user.isEmpty()) {
-//                    staticInfo1.replace(message.getHashIdStatus(), "error");
-//                    staticInfo1.replace(message.getHashIdUserFriendlyError(), "There is no user for the given login");
-//                    userList.set(0, staticInfo1);
-//                } else {
-//                    userList.add(user);
-//                }
-//            }
-//        } catch (SQLException e) {
-//            staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
-//            userList.set(0, staticInfo1);
-//        }
-//
-//        return userList;
-//    }
+
+    public List<HashMap<String, String>> getUserByUsername(String username, String role) {
+        List<HashMap<String, String>> result = new ArrayList<>();
+        HashMap<String, String> staticInfo = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+        result.add(staticInfo);
+
+        String query = """
+            SELECT id, username, role
+            FROM users
+            WHERE username ILIKE ?
+            AND role ILIKE ?
+            ORDER BY username
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            if (username == null || username.isBlank()) {
+                stmt.setString(1, "%");
+            } else {
+                stmt.setString(1, "%" + username + "%");
+            }
+            if (role == null || role.isBlank()) {
+                stmt.setString(2, "%");
+            } else {
+                stmt.setString(2, "%" + role + "%");
+            }
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    HashMap<String, String> row = new HashMap<>();
+                    row.put("id", rs.getString("id"));
+                    row.put("username", rs.getString("username"));
+                    row.put("role", rs.getString("role"));
+                    result.add(row);
+                }
+            }
+
+            if (result.size() == 1) {
+                staticInfo.replace(message.getHashIdStatus(), "error");
+                staticInfo.replace(message.getHashIdUserFriendlyError(), "No users found");
+            } else {
+                staticInfo.replace(message.getHashIdStatus(), "success");
+            }
+
+        }catch (SQLException e) {
+            staticInfo = errorHandler.handleSQLException(e, staticInfo, message);
+            result.set(0, staticInfo);
+        }
+
+        return result;
+    }
 }

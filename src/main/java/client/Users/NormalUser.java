@@ -73,13 +73,8 @@ public class NormalUser extends User {
                 throw new RuntimeException(ex);
             }
         });
-        VBox root = new VBox(
-                loginField.getRoot(),
-                passField.getRoot(),
-                urlField.getRoot(),
-                save,
-                back
-        );
+
+        VBox root = new VBox(loginField.getRoot(), passField.getRoot(), urlField.getRoot(), save, back);
         stageHandler.setScene(root, "Add password");
     }
 
@@ -141,10 +136,7 @@ public class NormalUser extends User {
             String login  = JsonExtract.extract(response, "data", String.valueOf(i), "login");
             String encPwd = JsonExtract.extract(response, "data", String.valueOf(i), "password");
 
-            String password = Encryption.decryptPassword(
-                    UserSession.getCurrentUser().getMaster_password(),
-                    encPwd
-            );
+            String password = Encryption.decryptPassword(UserSession.getCurrentUser().getMaster_password(), encPwd);
 
             Label domainLabel = new Label("Domain: " + domain);
             Label loginLabel  = new Label("Login: " + login);
@@ -169,10 +161,7 @@ public class NormalUser extends User {
 
         Button backBtn = new Button("Back");
         backBtn.setOnAction(e ->
-                stageHandler.setScene(
-                        UserSession.getCurrentUser().generateLayout(),
-                        "Password manager"
-                )
+                stageHandler.setScene(UserSession.getCurrentUser().generateLayout(), "Password manager")
         );
 
         layout.getChildren().add(backBtn);

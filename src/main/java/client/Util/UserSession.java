@@ -6,7 +6,6 @@ public class UserSession {
     private static User currentUser;
     private static String pendingPassword;
 
-    // Set the current logged-in user
     public static void setCurrentUser(User user) {
         currentUser = user;
     }
