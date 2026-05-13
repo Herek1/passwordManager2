@@ -42,6 +42,7 @@ public class ClientHandler implements Runnable {
             while ((inputLine = in.readLine()) != null) {
 
                 String response = requestHandler.handle(inputLine, this);
+                System.out.println("Received: " + inputLine);
                 logger.saveLogs(this.userId, this.clientIp, inputLine, response);
                 if(failCounter%5 == 0 && failCounter != 0){
                     response = ErrorResponseUtil.createTimeOutResponse(this);

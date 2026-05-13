@@ -17,6 +17,7 @@ import javafx.scene.layout.VBox;
 public class NormalUser extends User {
     private final ClientHandler clientHandler;
     private final StageHandler stageHandler;
+    private String lastPasswordRequest = "";
 
     public NormalUser(String username, String password, String role, ClientHandler clientHandler, StageHandler stageHandler) {
         super(username, password, role);
@@ -45,7 +46,7 @@ public class NormalUser extends User {
         String type = JsonExtract.extract(message, "type");
         switch (type) {
             case "getPasswords" -> handleGetPasswords(message);
-            case "deletePassword" -> openCheckPasswordView();
+            case "deletePassword" -> refreshPasswordsView();
             default -> ShowAlert.info("Success");
         }
     }
@@ -94,6 +95,7 @@ public class NormalUser extends User {
             jsonRequestNode.put("type", "getPassword");
             jsonRequestNode.put("username", this.getUsername());
             jsonRequestNode.put("url", urlField.getValue());
+            lastPasswordRequest = jsonRequestNode.toString();
             clientHandler.sendMessage(jsonRequestNode.toString());
         });
         viewAllBtn.setOnAction(e -> {
@@ -102,26 +104,18 @@ public class NormalUser extends User {
             jsonRequestNode.put("type", "getPassword");
             jsonRequestNode.put("username", this.getUsername());
             jsonRequestNode.put("url", "");
+            lastPasswordRequest = jsonRequestNode.toString();
             clientHandler.sendMessage(jsonRequestNode.toString());
         });
 
         backBtn.setOnAction(e -> stageHandler.setScene(generateLayout(),"Password manager"));
-
-        VBox root = new VBox(
-                urlField.getRoot(),
-                searchBtn,
-                viewAllBtn,
-                backBtn,
-                resultArea
-        );
+        VBox root = new VBox(urlField.getRoot(), searchBtn, viewAllBtn, backBtn, resultArea);
 
         stageHandler.setScene(root, "Check Password");
     }
 
     private void handleGetPasswords(String response) throws Exception {
-
         int size = JsonExtract.getArraySize(response, "data");
-
         if (size <= 1) {
             stageHandler.displayMessage("No passwords found.");
             return;
@@ -166,5 +160,11 @@ public class NormalUser extends User {
 
         layout.getChildren().add(backBtn);
         stageHandler.setScene(layout, "Your passwords");
+    }
+
+    private void refreshPasswordsView() {
+        if (lastPasswordRequest != null) {
+            clientHandler.sendMessage(lastPasswordRequest);
+        }
     }
 }

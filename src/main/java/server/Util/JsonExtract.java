@@ -31,4 +31,15 @@ public class JsonExtract {
             return null;
         }
     }
+
+    public static int getArraySize(String json, String arrayField) {
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            JsonNode root = mapper.readTree(json);
+            JsonNode arr = root.get(arrayField);
+            return (arr != null && arr.isArray()) ? arr.size() : 0;
+        } catch (Exception e) {
+            return 0;
+        }
+    }
 }

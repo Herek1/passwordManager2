@@ -80,6 +80,33 @@ public class PasswordsDAO {
         return result;
     }
 
+    public List<HashMap<String, String>> deleteAllPasswords(String username) {
+        List<HashMap<String, String>> result = new ArrayList<>();
+        HashMap<String, String> info = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+
+        String query = """
+        DELETE FROM passwords
+        WHERE username = ?
+    """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+            stmt.setString(1, username);
+
+            int affected = stmt.executeUpdate();
+
+            if (affected == 0) {
+                info.put("status", "NotFound");
+            } else {
+                info.put("status", "Success");
+            }
+        } catch (SQLException e) {
+            info = errorHandler.handleSQLException(e, info, message);
+        }
+
+        result.add(info);
+        return result;
+    }
+
     public List<HashMap<String, String>> getPassword(String username, String url){
         List<HashMap<String, String>> result = new ArrayList<>();
         HashMap<String, String> staticInfo = new HashMap<>(message.getDefaultErrorMessageAsHashMap());

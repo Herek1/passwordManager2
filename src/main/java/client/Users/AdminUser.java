@@ -66,9 +66,7 @@ public class AdminUser extends User{
                 request.put("username", loginField.getValue());
                 request.put("role", roleSelect.getValue());
 
-                clientHandler.sendMessage(
-                        request.toString()
-                );
+                clientHandler.sendMessage(request.toString());
 
             } catch (Exception ex) {
                 ex.printStackTrace();
@@ -167,9 +165,15 @@ public class AdminUser extends User{
                 System.out.println("Viewing passwords for: " + username);
             });
             deleteBtn.setOnAction(e -> {
-
-                // TODO:
-                System.out.println("Deleting user: " + username);
+                try {
+                    ObjectNode req = new ObjectMapper().createObjectNode();
+                    req.put("type", "deleteUser");
+                    req.put("username", username);
+                    stageHandler.getClientHandler().sendMessage(req.toString());
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    ShowAlert.error("Failed to delete user");
+                }
             });
             VBox buttons = new VBox(5, viewPasswordsBtn, deleteBtn);
             VBox entry = new VBox(5, idLabel, usernameLabel, roleLabel, buttons);

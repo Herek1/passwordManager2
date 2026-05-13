@@ -16,15 +16,13 @@ public class UsersDAO {
     private final Message message = new Message();
     private final ErrorHandler errorHandler = new ErrorHandler();
 
+    private static final String ROOT_USERNAME = "root";
+
     public UsersDAO(Connection conn) {
         this.conn = conn;
     }
 
     public List<HashMap<String, String>> createUser(String username, String role) {
-//        String query = """
-//        INSERT INTO users (username, master_password, role)
-//        VALUES (?, ?, ?)
-//        """;
         String query = """
         INSERT INTO users (username, role)
         VALUES (?, ?)
@@ -35,8 +33,6 @@ public class UsersDAO {
 
         try (PreparedStatement stmt = conn.prepareStatement(query)) {
             stmt.setString(1, username);
-            //stmt.setString(2, master_password);
-            //stmt.setString(3, role);
             stmt.setString(2, role);
             stmt.executeUpdate();
         } catch (SQLException e) {
@@ -71,29 +67,41 @@ public class UsersDAO {
         return infoList;
     }
 
-//    public List<HashMap<String, String>> deleteUser(String login) {
-//        List<HashMap<String, String>> infoList = new ArrayList<>();
-//
-//        HashMap<String, String> staticInfo1 = new HashMap<>(message.getDefaultErrorMessageAsHashMap());
-//
-//        String query = "DELETE FROM users WHERE login = ?";
-//        try (PreparedStatement stmt = conn.prepareStatement(query)) {
-//            stmt.setString(1, login);
-//
-//            HashMap<String, String> staticInfo2 = new HashMap<>();
-//            if (stmt.executeUpdate() > 0) {
-//                staticInfo2.put("success", "true");
-//            } else {
-//                staticInfo1.replace(message.getHashIdStatus(), "error");
-//                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User was not deleted");
-//            }
-//            infoList.add(staticInfo2);
-//        } catch (SQLException e) {
-//            staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
-//        }
-//        infoList.add(staticInfo1);
-//        return infoList;
-//    }
+    public List<HashMap<String, String>> deleteUser(String username) {
+
+        List<HashMap<String, String>> result = new ArrayList<>();
+
+        HashMap<String, String> staticInfo1 =
+                new HashMap<>(message.getDefaultErrorMessageAsHashMap());
+
+        result.add(staticInfo1);
+
+        String query = """
+        DELETE FROM users
+        WHERE username = ?
+        AND username <> ?
+        """;
+
+        try (PreparedStatement stmt = conn.prepareStatement(query)) {
+
+            stmt.setString(1, username);
+            stmt.setString(2, ROOT_USERNAME);
+            int affected = stmt.executeUpdate();
+
+            if (affected == 0) {
+                staticInfo1.replace(message.getHashIdStatus(), "error");
+                staticInfo1.replace(message.getHashIdUserFriendlyError(), "User was not deleted");
+            } else {
+                staticInfo1.replace(message.getHashIdStatus(), "success");
+            }
+
+        } catch (SQLException e) {
+            staticInfo1 = errorHandler.handleSQLException(e, staticInfo1, message);
+            result.set(0, staticInfo1);
+        }
+
+        return result;
+    }
 
 //    public List<HashMap<String, String>> isUserValid(String login, String password) {
 //        List<HashMap<String, String>> userList = new ArrayList<>();
@@ -165,6 +173,7 @@ public class UsersDAO {
             FROM users
             WHERE username ILIKE ?
             AND role ILIKE ?
+            AND username <> ?
             ORDER BY username
         """;
 
@@ -179,6 +188,7 @@ public class UsersDAO {
             } else {
                 stmt.setString(2, "%" + role + "%");
             }
+            stmt.setString(3, ROOT_USERNAME);
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
                     HashMap<String, String> row = new HashMap<>();

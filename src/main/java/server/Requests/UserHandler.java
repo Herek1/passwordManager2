@@ -1,36 +1,31 @@
 package server.Requests;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
-import db.dao.PasswordsDAO;
 import db.dao.UsersDAO;
 import server.Util.ErrorResponseUtil;
+import server.Util.JsonExtract;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 public class UserHandler {
     public static String login(String request, Connection connection) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(request);
-
-            String username = root.get("username").asText();
-            String password = root.get("password").asText();
+            String username = JsonExtract.extract(request, "username");
+            String password = JsonExtract.extract(request, "password");
 
             UsersDAO usersDAO = new UsersDAO(connection);
             List<HashMap<String, String>> dbResponse = usersDAO.getUser(username, password);
 
             ObjectMapper objectMapper = new ObjectMapper();
 
-            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-            jsonResponseNode.put("type", "login");
-            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
+            ObjectNode response = objectMapper.createObjectNode();
+            response.put("type", "login");
+            response.set("data", objectMapper.valueToTree(dbResponse));
 
-            return objectMapper.writeValueAsString(jsonResponseNode);
+            return objectMapper.writeValueAsString(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred during login.");
@@ -39,18 +34,39 @@ public class UserHandler {
     public static String createUser(String request, Connection connection) {
         UsersDAO usersDAO = new UsersDAO(connection);
         try {
-            ObjectMapper objectMapper = new ObjectMapper();
-            JsonNode root = objectMapper.readTree(request);
-            String username = root.get("username").asText();
-            String role = root.get("role").asText();
+            String username = JsonExtract.extract(request, "username");
+            String role = JsonExtract.extract(request, "role");
 
 
             List<HashMap<String, String>> dbResponse = usersDAO.createUser(username, role);
 
-            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-            jsonResponseNode.put("type", "createUser");
-            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
-            return objectMapper.writeValueAsString(jsonResponseNode);
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode response = mapper.createObjectNode();
+            response.put("type", "createUser");
+            response.set("data", mapper.valueToTree(dbResponse));
+
+            return mapper.writeValueAsString(response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching prescriptions.");
+        }
+    }
+
+    public static String deleteUser(String request, Connection connection){
+
+        UsersDAO usersDAO = new UsersDAO(connection);
+
+        try {
+            String username = JsonExtract.extract(request, "username");
+            PasswordHandler.deleteAllUserPassowrds(request, connection);
+            List<HashMap<String, String>> dbResponse = usersDAO.deleteUser(username);
+
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode response = mapper.createObjectNode();
+            response.put("type", "deleteUser");
+            response.set("data", mapper.valueToTree(dbResponse));
+
+            return mapper.writeValueAsString(response);
         } catch (Exception e) {
             e.printStackTrace();
             return ErrorResponseUtil.createErrorResponse("An unexpected error occurred while fetching prescriptions.");
@@ -62,14 +78,13 @@ public class UserHandler {
         UsersDAO usersDAO = new UsersDAO(connection);
 
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(request);
-            String username = root.get("username").asText();
-            String password = root.get("password").asText();
+            String username = JsonExtract.extract(request, "username");
+            String password = JsonExtract.extract(request, "password");
 
             List<HashMap<String, String>> dbResponse = usersDAO.updateUserPassword(username, password);
-            ObjectNode response = mapper.createObjectNode();
 
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode response = mapper.createObjectNode();
             response.put("type", "setPassword");
             response.set("data", mapper.valueToTree(dbResponse));
 
@@ -83,27 +98,20 @@ public class UserHandler {
 
     public static String getUsers(String request, Connection connection) {
         try {
-            ObjectMapper mapper = new ObjectMapper();
-            JsonNode root = mapper.readTree(request);
-
-            String username = null;
-            if (root.has("username") && !root.get("username").isNull()) {
-                username = root.get("username").asText();
-            }
-            String role = null;
-            if (root.has("role") && !root.get("role").isNull()) {
-                role = root.get("role").asText();
-            }
+            String username = JsonExtract.extract(request, "username");
+            String role = JsonExtract.extract(request, "role");
 
             UsersDAO usersDAO = new UsersDAO(connection);
+
             List<HashMap<String, String>> dbResponse = usersDAO.getUserByUsername(username, role);
 
-            ObjectMapper objectMapper = new ObjectMapper();
-            ObjectNode jsonResponseNode = objectMapper.createObjectNode();
-            jsonResponseNode.put("type", "getUsers");
-            jsonResponseNode.set("data", objectMapper.valueToTree(dbResponse));
+            ObjectMapper mapper = new ObjectMapper();
+            ObjectNode response = mapper.createObjectNode();
 
-            return objectMapper.writeValueAsString(jsonResponseNode);
+            response.put("type", "getUsers");
+            response.set("data", mapper.valueToTree(dbResponse));
+
+            return mapper.writeValueAsString(response);
 
         } catch (Exception e) {
             e.printStackTrace();

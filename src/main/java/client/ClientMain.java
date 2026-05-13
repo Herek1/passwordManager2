@@ -91,7 +91,7 @@ public class ClientMain extends Application {
                 case "user":
                     user = new NormalUser(username, UserSession.clearPendingPassword(), role, stageHandler.getClientHandler(), stageHandler);
                     break;
-                case "admin":
+                case "admin", "root":
                     user = new AdminUser(username, UserSession.clearPendingPassword(), role, stageHandler.getClientHandler(), stageHandler);
                     break;
                 default:

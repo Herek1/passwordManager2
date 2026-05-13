@@ -55,6 +55,10 @@ public class RequestHandler {
                 response = UserHandler.getUsers(request, connection);
                 break;
 
+            case "deleteUser":
+                response = UserHandler.deleteUser(request, connection);
+                break;
+
             case "addPassword":
                 response = PasswordHandler.addPassword(request, connection);
                 break;
