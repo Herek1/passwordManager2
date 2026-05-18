@@ -71,6 +71,10 @@ public class RequestHandler {
                 response = PasswordHandler.deletePassword(request, connection);
                 break;
 
+            case "getAuditLogs":
+                response = AuditLogHandler.getLogs(request, connection);
+                break;
+
             default:
                 response = "{\"success\":false,\"message\":\"Invalid request\"}";
         }

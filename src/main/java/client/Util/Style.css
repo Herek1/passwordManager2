@@ -1,0 +1,105 @@
+/* =========================
+   GLOBAL RESET (JavaFX)
+   ========================= */
+
+.root {
+    -fx-background-color: #1e1e1e;
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* Remove all focus outlines */
+* {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+/* =========================
+   BUTTONS
+   ========================= */
+
+.button {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+.button:pressed {
+    -fx-background-color: #1f1f1f;
+}
+
+/* =========================
+   TEXT FIELDS
+   ========================= */
+
+.text-field {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #e0e0e0;
+    -fx-prompt-text-fill: #888888;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+}
+
+/* =========================
+   LABELS
+   ========================= */
+
+.label {
+    -fx-text-fill: #dddddd;
+}
+
+/* =========================
+   TEXT AREA
+   ========================= */
+
+.text-area {
+    -fx-control-inner-background: #1e1e1e;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-color: #2b2b2b;
+    -fx-background-radius: 6;
+}
+
+/* =========================
+   COMBO BOX (FIX YOUR ISSUE)
+   ========================= */
+
+.combo-box {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: #e0e0e0;
+    -fx-background-radius: 6;
+    -fx-border-color: transparent;
+
+    /* critical: removes weird GTK focus box */
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+    -fx-effect: none;
+}
+
+.combo-box:focused {
+    -fx-background-color: #2b2b2b;
+    -fx-effect: none;
+}
+
+.combo-box .list-cell {
+    -fx-text-fill: #e0e0e0;
+    -fx-background-color: #2b2b2b;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #3a3a3a;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #3a3a3a;
+}
+
+/* arrow button */
+.combo-box .arrow-button {
+    -fx-background-color: transparent;
+}

@@ -60,7 +60,6 @@ public class StageHandler {
             scrollPane.setFitToHeight(true);
             scrollPane.setPannable(true);
 
-
             Scene scene = new Scene(scrollPane, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
             stage.setScene(scene);
             stage.setTitle(title);
