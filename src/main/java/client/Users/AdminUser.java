@@ -15,6 +15,8 @@ import javafx.scene.layout.VBox;
 public class AdminUser extends User{
     private final ClientHandler clientHandler;
     private final StageHandler stageHandler;
+    private String lastPasswordRequest = "";
+    private String viewedUser = "";
 
     public AdminUser(String username, String password, String role, ClientHandler clientHandler, StageHandler stageHandler) {
         super(username, password, role);
@@ -44,6 +46,8 @@ public class AdminUser extends User{
         String type = JsonExtract.extract(message, "type");
         switch (type) {
             case "getUsers" -> handleGetUsers(message);
+            case "getPasswords" -> handleGetPasswords(message);
+            case "deletePassword" -> refreshPasswordsView();
             default -> ShowAlert.info("Success");
         }
     }
@@ -158,11 +162,31 @@ public class AdminUser extends User{
             Label roleLabel = new Label("Role: " + role);
 
             Button viewPasswordsBtn = UiCreator.createButton("View passwords");
+            Button viewLogsBtn = UiCreator.createButton("View logs");
             Button deleteBtn = UiCreator.createButton("Delete");
 
             viewPasswordsBtn.setOnAction(e -> {
+                try {
+                    ObjectMapper objectMapper = new ObjectMapper();
+                    ObjectNode jsonRequestNode = objectMapper.createObjectNode();
+
+                    jsonRequestNode.put("type", "getPassword");
+                    jsonRequestNode.put("username", username);
+                    jsonRequestNode.put("url", "");
+                    lastPasswordRequest = jsonRequestNode.toString();
+                    viewedUser = username;
+
+                    clientHandler.sendMessage(jsonRequestNode.toString());
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    ShowAlert.error("Failed to fetch passwords");
+                }
+            });
+
+            viewLogsBtn.setOnAction(e -> {
                 // TODO:
-                System.out.println("Viewing passwords for: " + username);
+                System.out.println("Viewing logs for: " + username);
             });
             deleteBtn.setOnAction(e -> {
                 try {
@@ -175,7 +199,13 @@ public class AdminUser extends User{
                     ShowAlert.error("Failed to delete user");
                 }
             });
-            VBox buttons = new VBox(5, viewPasswordsBtn, deleteBtn);
+            VBox buttons;
+            if(role.equalsIgnoreCase("admin")){
+                buttons = new VBox(5, deleteBtn);
+            }else{
+                buttons = new VBox(5, viewPasswordsBtn, deleteBtn);
+            }
+
             VBox entry = new VBox(5, idLabel, usernameLabel, roleLabel, buttons);
 
             entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
@@ -189,5 +219,64 @@ public class AdminUser extends User{
 
         stageHandler.setScene(layout, "Users");
     }
+
+    private void handleGetPasswords(String message) {
+
+        int size = JsonExtract.getArraySize(message, "data");
+
+        if (size <= 1) {
+            stageHandler.displayMessage("No passwords found.");
+            return;
+        }
+
+        VBox layout = new VBox(10);
+        layout.setPadding(new Insets(15));
+
+        for (int i = 1; i < size; i++) {
+
+            String domain = JsonExtract.extract(message, "data", String.valueOf(i), "domain");
+            String login = JsonExtract.extract(message, "data", String.valueOf(i), "login");
+
+            Label domainLabel = new Label("Domain: " + domain);
+            Label loginLabel = new Label("Login: " + login);
+            Button deleteBtn = UiCreator.createButton("Delete");
+
+            deleteBtn.setOnAction(e -> {
+                try {
+                    ObjectNode req = new ObjectMapper().createObjectNode();
+
+                    req.put("type", "deletePassword");
+                    req.put("username", viewedUser);
+                    req.put("domain", domain);
+                    req.put("login", login);
+
+                    stageHandler.getClientHandler().sendMessage(req.toString());
+
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    ShowAlert.error("Failed to delete password");
+                }
+            });
+
+
+            VBox entry = new VBox(5, domainLabel, loginLabel, deleteBtn);
+            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            layout.getChildren().add(entry);
+        }
+
+        Button backBtn = UiCreator.createButton("Back");
+
+        backBtn.setOnAction(e -> stageHandler.setScene(UserSession.getCurrentUser().generateLayout(), "Admin panel"));
+
+        layout.getChildren().add(backBtn);
+
+        stageHandler.setScene(layout, "User passwords");
+    }
     private void openShowLogsView(){}
+
+    private void refreshPasswordsView() {
+        if (lastPasswordRequest != null) {
+            clientHandler.sendMessage(lastPasswordRequest);
+        }
+    }
 }
