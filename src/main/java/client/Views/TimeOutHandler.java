@@ -23,15 +23,15 @@ public class TimeOutHandler {
         Label titleLabel = new Label("Too many requests");
         Label timerLabel = new Label();
 
-        titleLabel.setStyle("-fx-font-size: 20px;");
-        timerLabel.setStyle("-fx-font-size: 16px;");
+        //titleLabel.setStyle("-fx-font-size: 20px;");
+        //timerLabel.setStyle("-fx-font-size: 16px;");
 
         VBox root = new VBox(15, titleLabel, timerLabel);
 
         root.setStyle("""
         -fx-alignment: center;
         -fx-padding: 30;
-    """);
+   """);
 
         final int[] remaining = {seconds};
 

@@ -1,0 +1,115 @@
+.root {
+    -fx-font-family: "Segoe UI";
+    -fx-font-size: 14px;
+
+    -fx-background-color: #1e1e1e;
+}
+
+.label {
+    -fx-text-fill: #e0e0e0;
+}
+
+.button {
+    -fx-background-color: #3a3a3a;
+    -fx-text-fill: white;
+
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+
+    -fx-cursor: hand;
+
+    -fx-min-width: 200;
+    -fx-min-height: 32;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.button:hover {
+    -fx-background-color: #4a4a4a;
+}
+
+.danger-button {
+    -fx-background-color: #8b2d2d;
+}
+
+.danger-button:hover {
+    -fx-background-color: #a33;
+}
+
+.text-input {
+    -fx-background-color: #2b2b2b;
+    -fx-control-inner-background: #2b2b2b;
+
+    -fx-text-fill: white;
+    -fx-prompt-text-fill: #888888;
+
+    -fx-border-color: #555555;
+    -fx-border-radius: 4;
+
+    -fx-background-radius: 4;
+
+    -fx-highlight-fill: #555555;
+    -fx-highlight-text-fill: white;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.text-area .content {
+    -fx-background-color: #2b2b2b;
+}
+
+.combo-box {
+    -fx-background-color: #2b2b2b;
+    -fx-border-color: #555555;
+
+    -fx-background-radius: 4;
+    -fx-border-radius: 4;
+
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}
+
+.combo-box .list-cell {
+    -fx-background-color: #2b2b2b;
+    -fx-text-fill: white;
+}
+
+.combo-box-popup .list-view {
+    -fx-background-color: #2b2b2b;
+}
+
+.combo-box-popup .list-cell:hover {
+    -fx-background-color: #444444;
+}
+
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: #1e1e1e;
+}
+
+.scroll-bar {
+    -fx-background-color: #1e1e1e;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: #555555;
+    -fx-background-radius: 4;
+}
+
+.card {
+    -fx-background-color: #252525;
+
+    -fx-border-color: #555555;
+    -fx-border-radius: 4;
+
+    -fx-background-radius: 4;
+
+    -fx-padding: 8;
+}
+
+*:focused {
+    -fx-focus-color: transparent;
+    -fx-faint-focus-color: transparent;
+}

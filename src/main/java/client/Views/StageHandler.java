@@ -36,7 +36,9 @@ public class StageHandler {
 
     public void setDefaultView() {
         VBox defaultLayout = generateDefaultLayout();
-        stage.setScene(new Scene(defaultLayout, 400, 300));
+        Scene scene = new Scene (defaultLayout, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
+        scene.getStylesheets().add(getClass().getResource("/main/passwordmanager/style.css").toExternalForm());
+        stage.setScene(scene);
         stage.setTitle("Password manager");
         stage.show();
     }
@@ -47,7 +49,8 @@ public class StageHandler {
             return;
         }
         VBox layout = user.generateLayout();
-        stage.setScene(new Scene(layout, 600, 400)); // Wider scene for better layout
+        //stage.setScene(new Scene(layout, stage.getWidth(), stage.getHeight()));
+        setScene(layout, "Password manager");
     }
 
     public void setScene(VBox root, String title) {
@@ -60,7 +63,8 @@ public class StageHandler {
             scrollPane.setFitToHeight(true);
             scrollPane.setPannable(true);
 
-            Scene scene = new Scene(scrollPane, UiCreator.WINDOW_WIDTH, UiCreator.WINDOW_HEIGHT);
+            Scene scene = new Scene(scrollPane, stage.getWidth(), stage.getHeight());
+            scene.getStylesheets().add(getClass().getResource("/main/passwordmanager/style.css").toExternalForm());
             stage.setScene(scene);
             stage.setTitle(title);
             stage.show();
@@ -70,8 +74,6 @@ public class StageHandler {
     private VBox generateDefaultLayout() {
         displayMessage("");
         Label titleLabel = new Label("Login to password manager");
-        titleLabel.setStyle("-fx-font-size: 16px; -fx-font-weight: bold;");
-
         TextField loginField = new TextField();
         loginField.setPromptText("Login");
 

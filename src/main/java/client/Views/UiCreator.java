@@ -6,8 +6,8 @@ import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 
 public class UiCreator {
-    public static final int WINDOW_WIDTH  = 520;
-    public static final int WINDOW_HEIGHT = 420;
+    public static final int WINDOW_WIDTH  = 400;
+    public static final int WINDOW_HEIGHT = 550;
 
     public static final int VBOX_SPACING = 10;
     public static final Insets ROOT_PADDING = new Insets(20);

@@ -20,6 +20,9 @@ public class Logger {
     public void saveLogs(Integer userId, String ip, String request, String response) {
         try {
             String action = JsonExtract.extract(request, "type");
+            if(action.equalsIgnoreCase("getAuditLogs")){
+                return;
+            }
             String statusStr = JsonExtract.extract(response, "data", "0", "status");
             boolean success = statusStr != null && statusStr.equalsIgnoreCase("success");
             System.out.println("result log audit: " + auditLogDAO.addLog(action, userId, ip, success, request, response));

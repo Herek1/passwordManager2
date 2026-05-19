@@ -148,8 +148,8 @@ public class NormalUser extends User {
             });
 
             VBox entry = new VBox(5, domainLabel, loginLabel, passLabel, deleteBtn);
-            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
-
+            //entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            entry.getStyleClass().add("card");
             layout.getChildren().add(entry);
         }
 

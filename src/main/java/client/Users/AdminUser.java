@@ -21,6 +21,7 @@ public class AdminUser extends User{
     private final ClientHandler clientHandler;
     private final StageHandler stageHandler;
     private String lastPasswordRequest = "";
+    private String lastUsersRequest = "";
     private String viewedUser = "";
 
     public AdminUser(String username, String password, String role, ClientHandler clientHandler, StageHandler stageHandler) {
@@ -53,6 +54,7 @@ public class AdminUser extends User{
             case "getUsers" -> handleGetUsers(message);
             case "getPasswords" -> handleGetPasswords(message);
             case "deletePassword" -> refreshPasswordsView();
+            case "deleteUser" -> refreshUsersView();
             case "getAuditLogs" -> handleGetLogs(message);
             default -> ShowAlert.info("Success");
         }
@@ -112,7 +114,7 @@ public class AdminUser extends User{
                 request.put("type", "getUsers");
                 request.put("username", usernameField.getValue());
                 request.put("role", roleSelect.getValue());
-
+                lastUsersRequest = request.toString();
                 clientHandler.sendMessage(request.toString());
 
             } catch (Exception ex) {
@@ -128,6 +130,7 @@ public class AdminUser extends User{
                 request.put("type", "getUsers");
                 request.put("username", "");
                 request.put("role", "");
+                lastUsersRequest = request.toString();
 
                 clientHandler.sendMessage(request.toString());
 
@@ -168,7 +171,6 @@ public class AdminUser extends User{
             Label roleLabel = new Label("Role: " + role);
 
             Button viewPasswordsBtn = UiCreator.createButton("View passwords");
-            Button viewLogsBtn = UiCreator.createButton("View logs");
             Button deleteBtn = UiCreator.createButton("Delete");
 
             viewPasswordsBtn.setOnAction(e -> {
@@ -189,11 +191,6 @@ public class AdminUser extends User{
                     ShowAlert.error("Failed to fetch passwords");
                 }
             });
-
-            viewLogsBtn.setOnAction(e -> {
-                // TODO:
-                System.out.println("Viewing logs for: " + username);
-            });
             deleteBtn.setOnAction(e -> {
                 try {
                     ObjectNode req = new ObjectMapper().createObjectNode();
@@ -213,8 +210,7 @@ public class AdminUser extends User{
             }
 
             VBox entry = new VBox(5, idLabel, usernameLabel, roleLabel, buttons);
-
-            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            entry.getStyleClass().add("card");
             layout.getChildren().add(entry);
         }
 
@@ -266,14 +262,16 @@ public class AdminUser extends User{
 
 
             VBox entry = new VBox(5, domainLabel, loginLabel, deleteBtn);
-            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            entry.getStyleClass().add("card");
             layout.getChildren().add(entry);
         }
 
         Button backBtn = UiCreator.createButton("Back");
 
-        backBtn.setOnAction(e -> stageHandler.setScene(UserSession.getCurrentUser().generateLayout(), "Admin panel"));
-
+        //backBtn.setOnAction(e -> stageHandler.setScene(UserSession.getCurrentUser().generateLayout(), "Admin panel"));
+        backBtn.setOnAction(e ->{
+            refreshUsersView();
+        });
         layout.getChildren().add(backBtn);
 
         stageHandler.setScene(layout, "User passwords");
@@ -402,13 +400,13 @@ public class AdminUser extends User{
             TextArea responseArea = new TextArea("Response: " + response);
             responseArea.setEditable(false);
             responseArea.setWrapText(true);
-            responseArea.setPrefRowCount(3);
-            responseArea.setStyle("-fx-control-inner-background: #f5f5f5;");
+            responseArea.setPrefRowCount(5);
+            //responseArea.setStyle("-fx-control-inner-background: #f5f5f5;");
 
             VBox entry = new VBox(4, idLabel, timeLabel, userLabel, actionLabel, successLabel, ipLabel, responseArea);
 
-            entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
-
+            //entry.setStyle("-fx-border-color: gray; -fx-padding: 8;");
+            entry.getStyleClass().add("card");
             layout.getChildren().add(entry);
         }
 
@@ -424,6 +422,12 @@ public class AdminUser extends User{
     private void refreshPasswordsView() {
         if (lastPasswordRequest != null) {
             clientHandler.sendMessage(lastPasswordRequest);
+        }
+    }
+
+    private void refreshUsersView(){
+        if(lastUsersRequest != null){
+            clientHandler.sendMessage(lastUsersRequest);
         }
     }
 
